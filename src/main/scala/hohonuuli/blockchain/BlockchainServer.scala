@@ -1,14 +1,13 @@
-package org.mbari.blockchain.original
+package hohonuuli.blockchain
 
 import java.util.UUID
 
-import akka.actor.ActorSystem
+import akka.actor.{ ActorLogging, ActorSystem }
 import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import com.lightbend.akka.http.sample.QuickstartServer.{ log, serverBindingFuture, system }
+import akka.stream.ActorMaterializer
 
 import scala.io.StdIn
 
@@ -117,7 +116,7 @@ object BlockchainServer extends JsonSupport {
 
     future.flatMap(_.unbind())
       .onComplete { done =>
-        done.failed.map { ex => log.error(ex, "Failed unbinding") }
+        done.failed.map { ex => println(ex, "Failed unbinding") }
         system.terminate()
       }
 

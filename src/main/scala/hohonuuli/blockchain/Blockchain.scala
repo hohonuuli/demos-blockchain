@@ -1,4 +1,4 @@
-package org.mbari.blockchain.original
+package hohonuuli.blockchain
 
 import java.net.URL
 import java.nio.charset.StandardCharsets
