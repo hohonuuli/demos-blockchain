@@ -8,7 +8,7 @@ import javax.xml.bind.DatatypeConverter
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, StatusCode, StatusCodes}
+import akka.http.scaladsl.model.{ HttpRequest, StatusCode, StatusCodes }
 import akka.stream.ActorMaterializer
 
 import scala.collection.mutable
@@ -16,11 +16,11 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 /**
-  *
-  *
-  * @author Brian Schlining
-  * @since 2017-10-22T10:37:00
-  */
+ *
+ *
+ * @author Brian Schlining
+ * @since 2017-10-22T10:37:00
+ */
 class Blockchain {
 
   import Blockchain._
@@ -77,8 +77,8 @@ class Blockchain {
 
       if (response.status == StatusCodes.OK) {
         val body = Await.result(response.entity
-            .toStrict(15 seconds)
-            .map(_.data.decodeString(StandardCharsets.UTF_8)), 15 seconds)
+          .toStrict(15 seconds)
+          .map(_.data.decodeString(StandardCharsets.UTF_8)), 15 seconds)
         val chainResponse = chainResponseJsonFormat.read(body.parseJson)
 
         val length = chainResponse.length
@@ -94,17 +94,18 @@ class Blockchain {
       this.chain.clear()
       this.chain ++ newChain
       true
-    }
-    else false
+    } else false
 
   }
 
-  def newBlock(proof: Long, previousHash: Option[String]): Block = {
-    val block = new Block(chain.size + 1,
+  def newBlock(proof: Long, previousHash: Option[String] = None): Block = {
+    val block = new Block(
+      chain.size + 1,
       Instant.now(),
-      Seq(currentTransactions:_*), // convert to immutable collection
+      Seq(currentTransactions: _*), // convert to immutable collection
       proof,
-      previousHash.getOrElse(hash(chain.last)))
+      previousHash.getOrElse(hash(chain.last))
+    )
 
     currentTransactions.clear()
     chain.append(block)
@@ -157,11 +158,11 @@ object Blockchain extends JsonSupport {
 case class Transaction(sender: String, recipient: String, amount: Int)
 
 case class Block(
-                    index: Int,
-                    timestamp: Instant,
-                    transactions: Seq[Transaction],
-                    proof: Long,
-                    previousHash: String
-                )
+  index: Int,
+  timestamp: Instant,
+  transactions: Seq[Transaction],
+  proof: Long,
+  previousHash: String
+)
 
 case class ChainResponse(chain: Seq[Block], length: Int)

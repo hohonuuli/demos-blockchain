@@ -4,8 +4,6 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import javax.xml.bind.DatatypeConverter
 
-
-
 case class Transaction(sender: String, recipient: String, amount: Int)
 
 case class Block(
@@ -16,24 +14,24 @@ case class Block(
   previousHash: String
 )
 
-
 object Blockchain extends JsonSupport {
 
   import java.security.MessageDigest
 
   private[this] val digest = MessageDigest.getInstance("SHA-256")
 
-  def newBlock(chain: Seq[Block],
-               proof: Long,
-               previousHash: Option[String] = None,
-               transactions: Seq[Transaction] = Nil): Unit = chain :+ Block(
-      chain.size + 1,
-      Instant.now(),
-      transactions,
-      proof,
-      previousHash.getOrElse(hash(chain.last))
-    )
-
+  def newBlock(
+    chain: Seq[Block],
+    proof: Long,
+    previousHash: Option[String] = None,
+    transactions: Seq[Transaction] = Nil
+  ): Unit = chain :+ Block(
+    chain.size + 1,
+    Instant.now(),
+    transactions,
+    proof,
+    previousHash.getOrElse(hash(chain.last))
+  )
 
   def newChain(): Seq[Block] =
     Seq(Block(1, Instant.now(), Nil, 100L, "1"))

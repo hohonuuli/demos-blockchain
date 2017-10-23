@@ -11,6 +11,5 @@ trait JsonSupport extends SprayJsonSupport {
   implicit val transactionJsonFormat = jsonFormat3(Transaction)
   implicit val blockchainJsonFormat = jsonFormat1(Blockchain)
 
-
 }
 
