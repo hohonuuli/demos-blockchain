@@ -7,11 +7,11 @@ Creating a Scala version of a blockchain as described at
 
 ## API
 
-GET <http://localhost:8080/v1/mine>
-GET <http://localhost:8080/v1/chain>
-POST <http://localhost:8080/v1/nodes/register>
-GET <http://localhost:8080/v1/nodes/resolve>
-POST <http://localhost:8080/v1/transactions/new>
+GET <http://localhost:8080/v1/mine>  
+GET <http://localhost:8080/v1/chain>  
+POST <http://localhost:8080/v1/nodes/register>  
+GET <http://localhost:8080/v1/nodes/resolve>  
+POST <http://localhost:8080/v1/transactions/new>  
 
 
 
