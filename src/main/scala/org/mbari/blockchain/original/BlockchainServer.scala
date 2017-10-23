@@ -8,6 +8,9 @@ import akka.stream.ActorMaterializer
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import com.lightbend.akka.http.sample.QuickstartServer.{ log, serverBindingFuture, system }
+
+import scala.io.StdIn
 
 /**
  *
@@ -15,7 +18,7 @@ import akka.http.scaladsl.server.Route
  * @author Brian Schlining
  * @since 2017-10-22T16:32:00
  */
-class BlockchainServer extends JsonSupport {
+object BlockchainServer extends JsonSupport {
 
   def main(args: Array[String]): Unit = {
 
@@ -36,7 +39,7 @@ class BlockchainServer extends JsonSupport {
 
         // We must receive a reward for finding the proof
         // The sender is "0" to sginify that this node has mined a new coin
-        blockchain.newTransaction(")", nodeIdentifier, 1)
+        blockchain.newTransaction("0", nodeIdentifier, 1)
         val block = blockchain.newBlock(proof)
         val response = ResponseMessage(
           "New Block Forged",
@@ -74,25 +77,29 @@ class BlockchainServer extends JsonSupport {
 
     val nodesRoute = pathPrefix("nodes") {
       path("register") {
-        entity(as[Nodes]) { nodes =>
-          nodes.nodes.foreach(n => blockchain.registerNode(n))
-          val r = NodesResponse(
-            "New Nodes have been added",
-            blockchain.nodes.map(_.toExternalForm)
-          )
-          complete(nodesResponseJsonFormat.write(r).compactPrint)
+        post {
+          entity(as[Nodes]) { nodes =>
+            nodes.nodes.foreach(n => blockchain.registerNode(n))
+            val r = NodesResponse(
+              "New Nodes have been added",
+              blockchain.nodes.map(_.toExternalForm)
+            )
+            complete(nodesResponseJsonFormat.write(r).compactPrint)
+          }
         }
       } ~
         path("resolve") {
-          val replaced = blockchain.resolveConflicts()
-          val c = if (replaced) {
-            val r = NodeResolved1("Our chain was replaced", blockchain.chain)
-            nodeResolved1JsonFormat.write(r).compactPrint
-          } else {
-            val r = NodeResolved2("Our chain is authoritative", blockchain.chain)
-            nodeResolved2JsonFormat.write(r).compactPrint
+          get {
+            val replaced = blockchain.resolveConflicts()
+            val c = if (replaced) {
+              val r = NodeResolved1("Our chain was replaced", blockchain.chain)
+              nodeResolved1JsonFormat.write(r).compactPrint
+            } else {
+              val r = NodeResolved2("Our chain is authoritative", blockchain.chain)
+              nodeResolved2JsonFormat.write(r).compactPrint
+            }
+            complete(c)
           }
-          complete(c)
         }
     }
 
@@ -102,7 +109,17 @@ class BlockchainServer extends JsonSupport {
       routes
     }
 
-    Http().bindAndHandle(route, "localhost", 8888)
+    val future = Http().bindAndHandle(route, "localhost", 8888)
+
+    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+
+    StdIn.readLine()
+
+    future.flatMap(_.unbind())
+      .onComplete { done =>
+        done.failed.map { ex => log.error(ex, "Failed unbinding") }
+        system.terminate()
+      }
 
   }
 

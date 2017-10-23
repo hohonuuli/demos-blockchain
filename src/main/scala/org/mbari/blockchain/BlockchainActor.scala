@@ -1,7 +1,7 @@
 package org.mbari.blockchain
 
 import akka.actor.Actor.Receive
-import akka.actor.Props
+import akka.actor.{ Actor, Props }
 
 object BlockchainActor {
   case class NewBlock()
@@ -13,7 +13,7 @@ object BlockchainActor {
   def props: Props = Props[BlockchainActor]
 }
 
-class BlockchainActor {
+class BlockchainActor extends Actor {
   import BlockchainActor._
 
   def receive: Receive = {
@@ -28,5 +28,6 @@ class BlockchainActor {
     //users.find(_.name == name) foreach { user => users -= user }
     //sender() ! ActionPerformed(s"User ${name} deleted.")
     case Mine() =>
+    case _ =>
   }
 }

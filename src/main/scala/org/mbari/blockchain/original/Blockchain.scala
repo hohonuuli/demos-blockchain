@@ -12,7 +12,7 @@ import akka.http.scaladsl.model.{ HttpRequest, StatusCode, StatusCodes }
 import akka.stream.ActorMaterializer
 
 import scala.collection.mutable
-import scala.concurrent.Await
+import scala.concurrent.{ Await, ExecutionContext }
 import scala.concurrent.duration._
 
 /**
@@ -56,7 +56,7 @@ class Blockchain {
     true
   }
 
-  def resolveConflicts(): Boolean = {
+  def resolveConflicts()(implicit ec: ExecutionContext): Boolean = {
 
     import spray.json._
 
