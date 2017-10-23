@@ -54,15 +54,18 @@ object BlockchainServer extends JsonSupport {
       }
     }
 
-    val transactionRoute = path("transactions/new") {
-      post {
-        entity(as[Transaction]) { transaction =>
-          val index = blockchain.newTransaction(
-            transaction.sender,
-            transaction.recipient, transaction.amount
-          )
-          val msg = Message(s"Transaction will be added to Block $index")
-          complete(messageJsonFormat.write(msg).compactPrint)
+    val transactionRoute = pathPrefix("transactions") {
+      path("new") {
+        post {
+          println("----- transaction")
+          entity(as[Transaction]) { transaction =>
+            val index = blockchain.newTransaction(
+              transaction.sender,
+              transaction.recipient, transaction.amount
+            )
+            val msg = Message(s"Transaction will be added to Block $index")
+            complete(messageJsonFormat.write(msg).compactPrint)
+          }
         }
       }
     }
@@ -102,13 +105,11 @@ object BlockchainServer extends JsonSupport {
         }
     }
 
-    val routes = mineRout ~ transactionRoute ~ chainRout ~ nodesRoute
-
     val route: Route = pathPrefix("v1") {
-      routes
+      mineRout ~ transactionRoute ~ chainRout ~ nodesRoute
     }
 
-    val future = Http().bindAndHandle(route, "localhost", 8888)
+    val future = Http().bindAndHandle(route, "localhost", 8080)
 
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
 
